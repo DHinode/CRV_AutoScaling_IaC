@@ -1,7 +1,8 @@
+# frontend-configmap.yml
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: frontend-config
 data:
   config.js: |
-    window.REACT_APP_API_URL = "http://backend:3000";
+    process.env.REACT_APP_API_URL = "";
