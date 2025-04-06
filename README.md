@@ -33,10 +33,16 @@ Il inclut également des options utiles pour nettoyer les ressources, consulter 
 
 À noter que le script et toute l'infrastructure sont un peu longs à lancer, si vous apercevez que ça n'affiche pas le bon résultat, attendez un peu et rafraichissez la page du service auquel vous accédez.
 
-> En ce qui concerne les Dockerfile, il faudrait modifier le chemin, à l'intérieur du Dockerfile, selon où sont les projets `redis-react/` et `redis-node/` (dans notre cas les Dockerfile étaient dans les répertoires des projets respectifs). 
-> Nous buildons les fichiers de cette manière : `docker build -f <CHEMIN_VERS_DOCKERFILE> -t <NOM_UTILISATEUR>/<NOM_IMAGE>:<TAG> <CONTEXTE>` avec `<CONTEXTE>` étant le répertoire où se trouve les fichiers sources. 
-> Une fois le build terminé, nous pouvons pousser notre image sur Dockerhub avec : `docker push <NOM_UTILISATEUR>/<NOM_IMAGE>:<TAG>`   
-> NE PAS OUBLIER DE MODIFIER L'URL DU FICHIER `redis-react/src/conf.js` : `export const URL = process.env.REACT_APP_API_URL;`
+## Dockerfile 
+
+Nous avons utilisé nos propres images faites à partir des sources fournies lors du TME. Il n'est donc pas nécessaire de réaliser les opérations décrites ci-dessous. Nous avons ajouté cette sous-section uniquement pour décrire la démarche suivie.
+
+En ce qui concerne les Dockerfile, il faudrait modifier le chemin, à l'intérieur du Dockerfile, selon où sont les projets `redis-react/` et `redis-node/` (dans notre cas les Dockerfile étaient dans les répertoires des projets respectifs).   
+Nous buildons les fichiers de cette manière : `docker build -f <CHEMIN_VERS_DOCKERFILE> -t <NOM_UTILISATEUR>/<NOM_IMAGE>:<TAG> <CONTEXTE>` avec `<CONTEXTE>` étant le répertoire où se trouve les fichiers sources.  
+Une fois le build terminé, nous pouvons pousser notre image sur Dockerhub avec : `docker push <NOM_UTILISATEUR>/<NOM_IMAGE>:<TAG>`   
+**NE PAS OUBLIER DE MODIFIER L'URL DU FICHIER `redis-react/src/conf.js` :** `export const URL = process.env.REACT_APP_API_URL;`  
+
+
 
 ## Accès aux interfaces 
 
@@ -49,9 +55,16 @@ Il inclut également des options utiles pour nettoyer les ressources, consulter 
 
 Vous pouvez également lancer la commande suivante pour obtenir les URL aux différentes interfaces : `minikube service <nom> --url`
 
-## Tests / démonstration
+## Tests AutoScaling
 
-Voir si les HPA scale correctement quand la charge monte : `watch kubectl get hpa`
+__Option 1 (recommandée) :__  
+Voir si les HPA scale correctement quand la charge monte : `watch kubectl get hpa`  
+Ensuite, dans un autre terminal, lancer : `while true; do curl http://$(minikube ip):30165/items; done`  
+Il faudra potentiellement modifié le champs `averageUtilization` utilisé dans les fichiers `k8s/backend-hpa.yml` et `k8s/db-replica-hpa.yml` afin de voir un changement significatif.  
+
+
+__Option 2 :__  
+Lancer : `./script.sh --test-hpa`
 
 ## Crédits 
 
