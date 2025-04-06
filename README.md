@@ -26,7 +26,8 @@ Déploiement complet :
 ```
 
 Ce script déploie automatiquement toute notre infrastructure Kubernetes. Il vérifie que Minikube est bien démarré, configure les ressources nécessaires (frontend, backend, base de données), active l’autoscaling des pods (HPA) en fonction de la charge CPU, et met en place la stack de monitoring Prometheus + Grafana.
-Il inclut également des options utiles pour nettoyer les ressources, consulter les logs, afficher l’état du cluster ou accéder au dashboard Minikube. Voir comment utiliser les options : `./script.sh --help`
+Il inclut également des options utiles pour nettoyer les ressources, consulter les logs, afficher l’état du cluster ou accéder au dashboard Minikube. 
+> Voir comment utiliser les **options** : `./script.sh --help`
 
 ### ⚠️ Attention
 
@@ -34,7 +35,8 @@ Il inclut également des options utiles pour nettoyer les ressources, consulter 
 
 > En ce qui concerne les Dockerfile, il faudrait modifier le chemin, à l'intérieur du Dockerfile, selon où sont les projets `redis-react/` et `redis-node/` (dans notre cas les Dockerfile étaient dans les répertoires des projets respectifs). 
 > Nous buildons les fichiers de cette manière : `docker build -f <CHEMIN_VERS_DOCKERFILE> -t <NOM_UTILISATEUR>/<NOM_IMAGE>:<TAG> <CONTEXTE>` avec `<CONTEXTE>` étant le répertoire où se trouve les fichiers sources. 
-> Une fois le build terminé, nous pouvons pousser notre image sur Dockerhub avec : `docker push <NOM_UTILISATEUR>/<NOM_IMAGE>:<TAG>`
+> Une fois le build terminé, nous pouvons pousser notre image sur Dockerhub avec : `docker push <NOM_UTILISATEUR>/<NOM_IMAGE>:<TAG>`   
+> NE PAS OUBLIER DE MODIFIER L'URL DU FICHIER `redis-react/src/conf.js` : `export const URL = process.env.REACT_APP_API_URL;`
 
 ## Accès aux interfaces 
 
