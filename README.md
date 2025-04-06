@@ -1,6 +1,7 @@
 # CRV_AutoScaling_IaC
 
-[TODO] ajout de petite description  
+
+Ce projet consiste à déployer une application web (frontend React + backend Node.js + Redis) sur un cluster Kubernetes en local avec Minikube. Il inclut la mise en place de l'autoscaling des pods selon l'utilisation CPU ainsi qu'un monitoring via Prometheus et Grafana.
 
 ---
 
