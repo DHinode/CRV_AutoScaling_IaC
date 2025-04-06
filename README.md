@@ -22,6 +22,12 @@ chmod +x ./script.sh
 
 Voir : `./script.sh --help`
 
+### ⚠️ Attention
+
+À noter que le script et toute l'infrastructure sont un peu long à lancer, si vous apercevez que ça n'affiche pas le bon résultat, attendez un peu et rafraichissez la page du service auquel vous accédez.
+
+En ce qui concerne les Dockerfile, il faudrait modifier le chemin selon où sont les projets redis-react/ et redis-node/
+
 ## Accès aux interfaces 
 
 - Frontend : `http://$(minikube ip):30080`
@@ -32,13 +38,6 @@ Voir : `./script.sh --help`
     > ⚠️ Login par défaut : admin / admin
 
 Vous pouvez également lancer la commande suivante pour obtenir les URL aux différentes interfaces : `minikube service <nom> --url`
-
-### ⚠️ Attention
-
-À noter que le script et toute l'infrastructure sont un peu long à lancer, si vous apercevez que ça n'affiche pas le bon résultat, attendez un peu et rafraichissez la page du service auquel vous accédez.
-
-En ce qui concerne les Dockerfile, il faudrait modifier le chemin selon où sont les projets redis-react/ et redis-node/
-
 
 ## Tests / démonstration
 
