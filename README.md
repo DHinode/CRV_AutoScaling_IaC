@@ -32,7 +32,7 @@ Voir : `./script.sh --help`
 
 À noter que le script et toute l'infrastructure sont un peu long à lancer, si vous apercevez que ça n'affiche pas le bon résultat, attendez un peu et rafraichissez la page du service auquel vous accédez.
 
-En ce qui concerne les Dockerfile, il faudrait modifier le chemin selon où sont les projets `redis-react/` et `redis-node/`. 
+En ce qui concerne les Dockerfile, il faudrait modifier le chemin, à l'intérieur du Dockerfile, selon où sont les projets `redis-react/` et `redis-node/` (dans notre cas les Dockerfile était dans les répertoires des projets respectifs). 
 Nous buildons les fichiers de cette manière : `docker build -f <CHEMIN_VERS_DOCKERFILE> -t <NOM_IMAGE>:<TAG> <CONTEXTE>` avec `<CONTEXTE>` étant le répertoire où se trouve les fichiers sources. 
 
 ## Accès aux interfaces 
