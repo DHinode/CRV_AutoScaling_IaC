@@ -8,13 +8,12 @@ CONFIGMAP_NAME=frontend-config
 BACKEND_SERVICE=backend
 K8S_DIR=./k8s
 
-# 🔧 Function to cleanup all Kubernetes resources
+# 🔧 Cleanup function
 cleanup_k8s_resources() {
   if ! minikube status | grep -q "host: Running"; then
     echo "⚠️  Minikube is not running. Cannot clean Kubernetes resources."
     return
   fi
-
   echo "🧼 Cleaning up Kubernetes resources..."
   kubectl delete deployments --all --ignore-not-found
   kubectl delete services --all --ignore-not-found
@@ -23,34 +22,82 @@ cleanup_k8s_resources() {
   echo "✅ Kubernetes resources cleaned."
 }
 
-# 🆘 Show help
-show_help() {
-  echo "Usage: $0 [--clean] [--shutdown] [--help]"
+# 📌 Status function
+show_status() {
+  echo "📌 Minikube Status:"
+  minikube status
   echo ""
-  echo "  --clean      Delete all Kubernetes resources"
-  echo "  --shutdown   Delete all resources and stop Minikube"
-  echo "  --help       Show this help message"
+  echo "📦 Deployments:"
+  kubectl get deployments
+  echo ""
+  echo "📡 Services:"
+  kubectl get svc
+  echo ""
+  echo "📈 HPA:"
+  kubectl get hpa
+}
+
+# 📄 Logs function
+show_logs() {
+  local deployment="$1"
+  if [[ -z "$deployment" ]]; then
+    echo "❌ Please specify a deployment to get logs for. Ex: --logs backend"
+    exit 1
+  fi
+  echo "📄 Logs for deployment '$deployment':"
+  kubectl logs deploy/"$deployment" --tail=100
+}
+
+# 🆘 Help function
+show_help() {
+  echo "Usage: $0 [--clean] [--shutdown] [--status] [--logs <name>] [--dashboard] [--help]"
+  echo ""
+  echo "  --clean        Delete all Kubernetes resources"
+  echo "  --shutdown     Delete all resources and stop Minikube"
+  echo "  --status       Show status of Minikube and Kubernetes resources"
+  echo "  --logs <name>  Show logs of a specific deployment (e.g., backend)"
+  echo "  --dashboard    Launch the Minikube dashboard"
+  echo "  --help         Show this help message"
   exit 0
 }
 
-# Parse arguments
+# Parse args
 CLEAN=false
 SHUTDOWN=false
+SHOW_LOGS=false
 
-for arg in "$@"; do
-  case "$arg" in
+POSITIONAL_ARGS=()
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
     --clean)
       CLEAN=true
+      shift
       ;;
     --shutdown)
       CLEAN=true
       SHUTDOWN=true
+      shift
+      ;;
+    --status)
+      show_status
+      exit 0
+      ;;
+    --logs)
+      SHOW_LOGS=true
+      shift
+      DEPLOYMENT_LOG="$1"
+      shift
+      ;;
+    --dashboard)
+      minikube dashboard
+      exit 0
       ;;
     --help)
       show_help
       ;;
     *)
-      echo "❌ Unknown option: $arg"
+      echo "❌ Unknown option: $1"
       show_help
       ;;
   esac
@@ -67,7 +114,13 @@ if [ "$CLEAN" = true ]; then
   exit 0
 fi
 
-# ✅ Deploy normally if no cleanup/shutdown
+# Execute logs if requested
+if [ "$SHOW_LOGS" = true ]; then
+  show_logs "$DEPLOYMENT_LOG"
+  exit 0
+fi
+
+# ✅ Normal deployment
 echo "🚀 Checking Minikube status..."
 if ! minikube status | grep -q "host: Running"; then
   echo "⚠️  Minikube is not running. Starting Minikube..."
@@ -122,3 +175,4 @@ echo "✅ Deployment complete!"
 echo "🌍 Frontend:     http://$MINIKUBE_IP:30080"
 echo "📊 Grafana:      http://$MINIKUBE_IP:30030"
 echo "📡 Prometheus:   http://$MINIKUBE_IP:30090"
+
