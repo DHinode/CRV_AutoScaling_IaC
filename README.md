@@ -33,6 +33,13 @@ Voir : `./script.sh --help`
 
 Vous pouvez également lancer la commande suivante pour obtenir les URL aux différentes interfaces : `minikube service <nom> --url`
 
+### ⚠️ Attention
+
+À noter que le script et toute l'infrastructure sont un peu long à lancer, si vous apercevez que ça n'affiche pas le bon résultat, attendez un peu et rafraichissez la page du service auquel vous accédez.
+
+En ce qui concerne les Dockerfile, il faudrait modifier le chemin selon où sont les projets redis-react/ et redis-node/
+
+
 ## Tests / démonstration
 
 Voir si les HPA scale correctement quand la charge monte : `watch kubectl get hpa`
