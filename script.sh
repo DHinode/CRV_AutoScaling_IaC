@@ -8,7 +8,7 @@ CONFIGMAP_NAME=frontend-config
 BACKEND_SERVICE=backend
 K8S_DIR=./k8s
 
-# 🔧 Cleanup function
+# Cleanup function
 cleanup_k8s_resources() {
   if ! minikube status | grep -q "host: Running"; then
     echo "⚠️  Minikube is not running. Cannot clean Kubernetes resources."
@@ -22,7 +22,7 @@ cleanup_k8s_resources() {
   echo "✅ Kubernetes resources cleaned."
 }
 
-# 📌 Status function
+# Status function
 show_status() {
   echo "📌 Minikube Status:"
   minikube status
@@ -37,26 +37,39 @@ show_status() {
   kubectl get hpa
 }
 
-# 📄 Logs function
+# Logs function
 show_logs() {
   local deployment="$1"
   if [[ -z "$deployment" ]]; then
     echo "❌ Please specify a deployment to get logs for. Ex: --logs backend"
     exit 1
   fi
+
+  if ! minikube status | grep -q "host: Running"; then
+    echo "⚠️  Minikube is not running. Cannot show logs."
+    return
+  fi
+
+
+  if ! kubectl get deployment "$deployment" &>/dev/null; then
+    echo "❌ Deployment '$deployment' does not exist. Redeploy it maybe ?"
+    exit 1
+  fi
+
   echo "📄 Logs for deployment '$deployment':"
   kubectl logs deploy/"$deployment" --tail=100
 }
 
-# 🆘 Help function
+# Help function
 show_help() {
-  echo "Usage: $0 [--clean] [--shutdown] [--status] [--logs <name>] [--dashboard] [--help]"
+  echo "Usage: $0 [--clean] [--shutdown] [--status] [--logs <name>] [--dashboard] [--test-hpa] [--help]"
   echo ""
   echo "  --clean        Delete all Kubernetes resources"
   echo "  --shutdown     Delete all resources and stop Minikube"
   echo "  --status       Show status of Minikube and Kubernetes resources"
   echo "  --logs <name>  Show logs of a specific deployment (e.g., backend)"
   echo "  --dashboard    Launch the Minikube dashboard"
+  echo "  --test-hpa     Test Horizontal Pod Autoscaler (simulate CPU load)"
   echo "  --help         Show this help message"
   exit 0
 }
@@ -65,6 +78,7 @@ show_help() {
 CLEAN=false
 SHUTDOWN=false
 SHOW_LOGS=false
+TEST_HPA=false
 
 POSITIONAL_ARGS=()
 
@@ -93,6 +107,10 @@ while [[ $# -gt 0 ]]; do
       minikube dashboard
       exit 0
       ;;
+    --test-hpa)
+      TEST_HPA=true
+      shift
+      ;;
     --help)
       show_help
       ;;
@@ -120,7 +138,7 @@ if [ "$SHOW_LOGS" = true ]; then
   exit 0
 fi
 
-# ✅ Normal deployment
+# Normal deployment
 echo "🚀 Checking Minikube status..."
 if ! minikube status | grep -q "host: Running"; then
   echo "⚠️  Minikube is not running. Starting Minikube..."
@@ -168,7 +186,7 @@ kubectl create configmap $CONFIGMAP_NAME \
 echo "♻️ Restarting frontend deployment to apply new config..."
 kubectl rollout restart deployment $FRONTEND_DEPLOYMENT
 
-echo -e "\e[1;31m🗿 It's loading, just a sec !\e[0m"
+echo -e "\e[1;31m🗿 It's loading, just 17 seconds.\e[0m"
 sleep 17
 
 echo "✅ Deployment complete!"
@@ -176,3 +194,20 @@ echo "🌍 Frontend:     http://$MINIKUBE_IP:30080"
 echo "📊 Grafana:      http://$MINIKUBE_IP:30030"
 echo "📡 Prometheus:   http://$MINIKUBE_IP:30090"
 
+# Run HPA test if requested
+if [ "$TEST_HPA" = true ]; then
+  echo "🧪 Simulating CPU load on backend to trigger HPA..."
+  POD_NAME=$(kubectl get pods -l app=backend -o jsonpath='{.items[0].metadata.name}')
+  kubectl exec "$POD_NAME" -- /bin/sh -c "apk add --no-cache stress || apt-get update && apt-get install -y stress"
+  kubectl exec "$POD_NAME" -- stress --cpu 1 --timeout 60 &
+
+  echo "⏳ Waiting 60s for HPA to react..."
+  sleep 60
+
+  echo "📈 HPA Status:"
+  kubectl get hpa
+  echo "📦 Backend Pods:"
+  kubectl get pods -l app=backend
+  echo "✅ HPA test completed."
+  exit 0
+fi
