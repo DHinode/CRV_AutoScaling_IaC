@@ -1,20 +1,54 @@
 # db-deployment.yml
+# Redis Master Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: redis
+  name: redis-master
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: redis
+      role: master
   template:
     metadata:
       labels:
         app: redis
+        role: master
     spec:
       containers:
-      - name: redis
-        image: dhinode/my-redis:latest
-        ports:
-        - containerPort: 6379
+        - name: redis
+          image: dhinode/my-redis:latest
+          ports:
+            - containerPort: 6379
+---
+# Redis Replica Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-replica
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: redis
+      role: replica
+  template:
+    metadata:
+      labels:
+        app: redis
+        role: replica
+    spec:
+      containers:
+        - name: redis
+          image: dhinode/my-redis:latest
+          args: ["--replicaof", "redis-master", "6379"]
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "300m"
+              memory: "128Mi"

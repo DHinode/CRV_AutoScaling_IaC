@@ -1,13 +1,26 @@
 # db-service.yml
+# Redis Master Service
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis
+  name: redis-master
 spec:
   selector:
     app: redis
+    role: master
   ports:
-    - protocol: TCP
-      port: 6379
+    - port: 6379
       targetPort: 6379
-
+---
+# Redis Replica Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-replica
+spec:
+  selector:
+    app: redis
+    role: replica
+  ports:
+    - port: 6379
+      targetPort: 6379

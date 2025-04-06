@@ -1,0 +1,13 @@
+# grafana-service.yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+spec:
+  type: NodePort
+  ports:
+    - port: 3000
+      targetPort: 3000
+      nodePort: 30030
+  selector:
+    app: grafana

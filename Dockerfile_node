@@ -1,0 +1,28 @@
+# Définit l'image de base utilisée pour le conteneur : 
+# Image officielle de Node.js version 18
+FROM node:18
+
+# Répertoire de travail dans le conteneur 
+# Tous sera exécutées dans ce répertoire
+WORKDIR /app
+
+# Copie les fichiers suivant dans le conteneur
+# Ils contiennent la liste des dépendances du projet
+COPY package*.json ./
+
+# Installation de toutes les dépendances du projet 
+# au sein du conteneur (qui disposera donc de toutes
+# les package nécessaire). 
+RUN yarn install
+
+# Copie tous les fichiers du projet dans le conteneur
+# Fait après l'installation pour optimiser la mise en 
+# cache des dépendances dans Docker. 
+COPY . .
+
+# Indique le port d'écoute du serveur. 
+EXPOSE 3000
+
+# Définition de la commande par défaut exéctée lors 
+# du démarrage du conteneur, ici on lance le serveur. 
+CMD ["node", "main.js"]
